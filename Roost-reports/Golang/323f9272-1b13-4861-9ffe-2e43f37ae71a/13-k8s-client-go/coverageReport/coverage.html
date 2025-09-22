@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>k8s-client-go: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/akilans/k8s-client-go/main.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">// This application
+// Lists Pods, Deployments in the kubernetes cluster
+// Creates/Updates a deployment with k8s manifest yaml file
+
+package main
+
+import (
+        "context"
+        "flag"
+        "fmt"
+        "log"
+        "os"
+
+        appsv1 "k8s.io/api/apps/v1"
+        v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+        "k8s.io/client-go/kubernetes"
+        "k8s.io/client-go/kubernetes/scheme"
+        "k8s.io/client-go/tools/clientcmd"
+)
+
+// Function to list all the pods in the specific namespace
+func listPods(clientset *kubernetes.Clientset, namespace string) <span class="cov0" title="0">{
+
+        pods, err := clientset.CoreV1().Pods(namespace).List(context.Background(), v1.ListOptions{})
+
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err.Error())</span>
+        }
+
+        // print all the pod names in the specified namespace
+        <span class="cov0" title="0">if len(pods.Items) &gt; 0 </span><span class="cov0" title="0">{
+                for _, pod := range pods.Items </span><span class="cov0" title="0">{
+                        fmt.Println("Pod -", pod.Name)
+                }</span>
+        } else<span class="cov0" title="0"> {
+                fmt.Printf("No pods found in %s namespace\n", namespace)
+        }</span>
+}
+
+// Function to list all the Deployments in the specific namespace
+func listDeployments(clientset *kubernetes.Clientset, namespace string) <span class="cov0" title="0">{
+
+        deployments, err := clientset.AppsV1().Deployments(namespace).List(context.Background(), v1.ListOptions{})
+
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err.Error())</span>
+        }
+
+        // print all the pod names in default namespace
+        <span class="cov0" title="0">if len(deployments.Items) &gt; 0 </span><span class="cov0" title="0">{
+                for _, deployment := range deployments.Items </span><span class="cov0" title="0">{
+                        fmt.Println("Deployment -", deployment.Name)
+                }</span>
+        } else<span class="cov0" title="0"> {
+                fmt.Printf("No deployments found in %s namespace\n", namespace)
+        }</span>
+}
+
+func main() <span class="cov0" title="0">{
+        fmt.Println("Testing client go...")
+
+        // Namespace to deploy
+        namespace := "default"
+        kubeConfigFilePath := "/home/akilan/.kube/config"
+
+        kubeconfig := flag.String("kubeconfig", kubeConfigFilePath, "kubeconfig file location")
+
+        // use the current context in kubeconfig
+        config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err.Error())</span>
+        }
+
+        // create the clientset
+        <span class="cov0" title="0">clientset, err := kubernetes.NewForConfig(config)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err.Error())</span>
+        }
+
+        // getting pods in default namespace
+        <span class="cov0" title="0">listPods(clientset, namespace)
+        // get all the deployments in the default namespace
+        listDeployments(clientset, namespace)
+
+        // Load the file into a buffer
+        data, err := os.ReadFile("dep.yaml")
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+
+        // Universal Decoder for schema decoding for all kinds [ Pod, Deployment, Service etc...]
+        <span class="cov0" title="0">decoder := scheme.Codecs.UniversalDeserializer()
+
+        // Find GVK and decoding
+        obj, groupVersionKind, err := decoder.Decode(data, nil, nil)
+        if err != nil </span><span class="cov0" title="0">{
+                fmt.Println(err)
+        }</span>
+
+        // Supporting only deployment kind
+        <span class="cov0" title="0">if groupVersionKind.Group == "apps" &amp;&amp;
+                groupVersionKind.Version == "v1" &amp;&amp;
+                groupVersionKind.Kind == "Deployment" </span><span class="cov0" title="0">{
+
+                deploymentObj := obj.(*appsv1.Deployment)
+
+                // check if deployment with same name exists
+                existingDeployments, _ := clientset.AppsV1().Deployments(namespace).List(context.Background(), v1.ListOptions{})
+                if err != nil </span><span class="cov0" title="0">{
+                        fmt.Println(err)
+                }</span>
+
+                <span class="cov0" title="0">isDeploymentExists := false
+
+                for _, dep := range existingDeployments.Items </span><span class="cov0" title="0">{
+                        if dep.Name == deploymentObj.ObjectMeta.Name </span><span class="cov0" title="0">{
+                                isDeploymentExists = true
+                        }</span>
+                }
+
+                <span class="cov0" title="0">if !isDeploymentExists </span><span class="cov0" title="0">{
+                        // create a deployment if empty
+                        fmt.Printf("%s is not found in %s namespace. So Creating...\n", deploymentObj.ObjectMeta.Name, namespace)
+                        _, err = clientset.AppsV1().Deployments(namespace).Create(context.Background(), deploymentObj, v1.CreateOptions{})
+                        if err != nil </span><span class="cov0" title="0">{
+                                fmt.Println(err)
+                        }</span> else<span class="cov0" title="0"> {
+                                fmt.Println("Created deployment successfully...")
+                        }</span>
+
+                } else<span class="cov0" title="0"> {
+                        // update the deployment if exists
+                        fmt.Printf("%s is found in %s namespace. So Updating.... \n", deploymentObj.ObjectMeta.Name, namespace)
+                        _, err = clientset.AppsV1().Deployments(namespace).Update(context.Background(), deploymentObj, v1.UpdateOptions{})
+                        if err != nil </span><span class="cov0" title="0">{
+                                fmt.Println(err)
+                        }</span> else<span class="cov0" title="0"> {
+                                fmt.Println("Updated deployment successfully...")
+                        }</span>
+                }
+
+        }
+
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
